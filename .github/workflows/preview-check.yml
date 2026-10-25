@@ -5,6 +5,10 @@ on:
     branches: [codex/independent-app-build]
   workflow_dispatch:
 
+concurrency:
+  group: expo-preview-check
+  cancel-in-progress: true
+
 jobs:
   preview-check:
     runs-on: ubuntu-latest
