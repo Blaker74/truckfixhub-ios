@@ -1,6 +1,6 @@
 # TruckFixHub iPhone App
 
-A native-feeling Expo Router / React Native companion for [truckfixhub.com](https://truckfixhub.com). This project keeps the app separate from the TruckFixHub website repository. Manus remains the canonical build source; `Blaker74/truckfixhub-ios` is maintained as a separate source copy.
+A native-feeling Expo Router / React Native companion for [truckfixhub.com](https://truckfixhub.com). This project keeps the app separate from the TruckFixHub website repository. `Blaker74/truckfixhub-ios` is the independent app source. Startup uses Expo directly, with no Manus runtime or starter API requirement.
 
 ## Features
 
@@ -10,9 +10,15 @@ The Supabase URL and publishable client key in `lib/supabase.ts` are already bro
 
 ## Development
 
-Use the project's pinned pnpm/Expo dependencies. `pnpm dev` starts the Metro/Web Preview on port 8081 and the starter API on port 3000. In Manus, use the project's Dashboard Preview/Expo connection workflow; the Sandbox is not a release-build environment. A web preview cannot validate every iOS-only capability such as Keychain-backed auth storage or the native photo-library picker.
+Install with `pnpm install --frozen-lockfile`, then use `pnpm dev` for Expo or `pnpm web` for the browser. `pnpm check` checks TypeScript, `pnpm export:ios` bundles the iOS JavaScript/assets, and `pnpm export:web` exports the web app. These exports are not signed iPhone installations.
 
-Do not change the generated iOS bundle ID, Android package ID, or deep-link scheme without an intentional migration. iOS/TestFlight or App Store builds are created through the Manus Dashboard after the accepted app source/configuration is ready and only when requested.
+## iPhone installation
+
+`eas.json` contains simulator, internal preview, and production build profiles. Link this repository to the owner's Expo account with EAS before building. Supply the resulting project ID through `EXPO_PUBLIC_EAS_PROJECT_ID`. Do not reuse a guessed or Manus-owned Expo project ID.
+
+A physical iPhone build requires the owner's Apple signing credentials and device registration (internal preview), or TestFlight distribution. No credentials are committed here. Account linking, signing, and on-device validation are still outstanding. No paid build or Apple enrollment has been authorized.
+
+The existing bundle identifier and deep-link scheme are preserved to avoid accidentally changing the application's identity. The legacy Manus OAuth callback now redirects to the Garage sign-in screen; the app uses its existing Supabase email/password authentication.
 
 ## Main code areas
 
