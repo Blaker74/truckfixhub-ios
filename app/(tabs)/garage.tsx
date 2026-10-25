@@ -1,13 +1,16 @@
 import { Ionicons } from "@expo/vector-icons";
 import { Href, router } from "expo-router";
 import { useState } from "react";
-import { Text, View } from "react-native";
+import { Alert, Linking, Text, View } from "react-native";
 
 import { AppScreen, ErrorText, FormField, Notice, PageHeading, Panel, PrimaryButton, RowCard, SectionHeading } from "@/components/brand-ui";
 import { BRAND } from "@/constants/truckfixhub";
 import { useAuth } from "@/lib/auth-context";
 import { PRIVATE_TOOLS, ToolId } from "@/lib/private-tools";
 import { supabase } from "@/lib/supabase";
+
+const PRIVACY_URL = "https://truckfixhub.com/privacy.html";
+const SUPPORT_EMAIL = "support@truckfixhub.com";
 
 export default function GarageScreen() {
   const { user, loading, signOut } = useAuth();
@@ -46,6 +49,26 @@ export default function GarageScreen() {
     }
   };
 
+  const requestAccountDeletion = () => {
+    if (!user) return;
+    Alert.alert(
+      "Request account deletion?",
+      "This starts a request to permanently delete your TruckFixHub account and associated personal data that TruckFixHub is not legally required to retain. Community content associated with the account should also be included in the deletion request.",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Continue",
+          style: "destructive",
+          onPress: () => {
+            const subject = encodeURIComponent("TruckFixHub account deletion request");
+            const body = encodeURIComponent(`Please permanently delete my TruckFixHub account and associated personal data.\n\nAccount email: ${user.email ?? ""}\n\nPlease confirm when the deletion is complete.`);
+            void Linking.openURL(`mailto:${SUPPORT_EMAIL}?subject=${subject}&body=${body}`);
+          },
+        },
+      ],
+    );
+  };
+
   if (loading) return <AppScreen><PageHeading title="My Garage" subtitle="Checking your TruckFixHub account…" /></AppScreen>;
 
   if (!user) {
@@ -65,6 +88,7 @@ export default function GarageScreen() {
             {mode !== "sign-in" ? <PrimaryButton variant="quiet" label="Back to sign in" onPress={() => { setMode("sign-in"); setError(""); setMessage(""); }} /> : null}
             {mode === "sign-in" ? <PrimaryButton variant="quiet" label="Create a TruckFixHub account" onPress={() => { setMode("create"); setError(""); setMessage(""); }} /> : null}
             {mode === "sign-in" ? <PrimaryButton variant="quiet" label="Forgot password?" onPress={() => { setMode("forgot"); setError(""); setMessage(""); }} /> : null}
+            <PrimaryButton variant="quiet" label="Privacy policy" onPress={() => void Linking.openURL(PRIVACY_URL)} />
           </View>
         </Panel>
         <Notice tone="yellow">Do not save private truck or VIN records on a shared device. Sign out when you are finished.</Notice>
@@ -93,6 +117,12 @@ export default function GarageScreen() {
         })}
       </View>
       <Notice title="Your data stays yours" tone="blue">Private records load through your signed-in TruckFixHub account and are filtered to that account. Community posts are public to the community.</Notice>
+      <Panel>
+        <Text style={{ color: BRAND.navy, fontSize: 17, fontWeight: "900" }}>Account & privacy</Text>
+        <Text style={{ color: BRAND.muted, fontSize: 13, lineHeight: 19 }}>Review the privacy policy or start a permanent account-deletion request from here.</Text>
+        <PrimaryButton variant="secondary" label="Privacy policy" icon="shield-checkmark-outline" onPress={() => void Linking.openURL(PRIVACY_URL)} />
+        <PrimaryButton variant="quiet" label="Request account deletion" icon="trash-outline" onPress={requestAccountDeletion} />
+      </Panel>
     </AppScreen>
   );
 }
