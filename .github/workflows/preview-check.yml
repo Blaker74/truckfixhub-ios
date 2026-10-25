@@ -20,4 +20,4 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm exec expo config --type public
-      - run: pnpm exec expo export --platform web
+      - run: pnpm exec expo export --platform ios --output-dir dist-ios
